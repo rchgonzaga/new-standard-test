@@ -1,0 +1,73 @@
+<script type="text/javascript">
+	executes.onShow.push(
+		function(self){
+            // SET THE SELECT VALUES
+            $('#id_tipo_maquina').dropdown('set selected',[ self.$get('newEntity.id_tipo_maquina') ]);
+            $('#id_maquina_status').dropdown('set selected',[ self.$get('newEntity.id_maquina_status') ]);
+            $('#id_fazenda').dropdown('set selected',[ self.$get('newEntity.id_fazenda') ]);
+		}
+	);
+
+	executes.onCreate.push(
+		function(entity){
+			// WORKAROUND
+			entity.id_tipo_maquina = $('#id_tipo_maquina').val();
+			entity.id_maquina_status = $('#id_maquina_status').val();
+			entity.id_fazenda = $('#id_fazenda').val();
+		}
+	);	
+
+</script>
+<div class="ui modal small" id="add{{module|capitalize}}">
+	<i class="close icon"></i>
+	<div class="header">
+		{{module|capitalize}}
+	</div>
+
+	<div class="content">
+
+	<form action="#" @submit.prevent="AddNewUser" method="POST" class="ui form">
+			
+		<div class="fields">
+			{{ macros.vInput('descr', 'Cod. Equipamento', 'newEntity.descr', 'text', 'Cod. equipamento', 'ten') }}
+			{{ macros.vSelect('id_fazenda', 'Fazenda', '', 'six', 'Fazenda', 'id', 'nome') }}
+		</div>
+
+		<div class="fields">
+			{{ macros.vSelect('id_tipo_maquina', 'Tipo da maquina', '', 'eight', 'MaquinaTipo', 'id', 'descr') }}
+			{{ macros.vSelect('id_maquina_status', 'Status da maquina', '', 'eight', 'MaquinaStatus', 'id', 'descr') }}
+		</div>
+
+		<div class="fields">
+			{{ macros.vInput('modelo', 'Modelo', 'newEntity.modelo', 'text', 'Modelo', 'eight') }}
+			{{ macros.vInput('ano_fabricacao', 'Ano de fabricacao', 'newEntity.ano_fabricacao', 'text', 'Ano de fabricacao', 'eight') }}
+		</div>
+
+		<div class="fields">
+			{{ macros.vInput('custo_hora', 'Custo por hora', 'newEntity.custo_hora', 'text', 'Custo por hora', 'four') }}
+			{{ macros.vInput('vida_util', 'Vida util', 'newEntity.vida_util', 'text', 'Vida util', 'four') }}
+			{{ macros.vInput('horimetro_inicial', 'Horimetro inicial', 'newEntity.horimetro_inicial', 'text', 'Horimetro inicial', 'four') }}
+			{{ macros.vInput('km_inicial', 'KM inicial', 'newEntity.km_inicial', 'text', 'KM inicial', 'four') }}
+		</div>
+		
+		<div class="field">
+			<label>Observação</label>
+			<textarea rows="2" v-model="newEntity.obs" id="newEntity.obs" name="newEntity.obs"></textarea>
+		</div>
+
+
+	</form>
+
+	</div>
+
+	  <div class="actions">
+		<div class="ui black deny button" v-on:click="cancel($event)">
+		  Cancelar
+		</div>
+		<div class="ui positive right labeled icon button" v-on:click="create($event)">
+		  Salvar
+		  <i class="checkmark icon"></i>
+		</div>
+	  </div>
+	  
+</div>

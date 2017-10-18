@@ -1,0 +1,328 @@
+<script type="text/javascript">
+	// Shorthand for $( document ).ready()
+	$(function() {
+	    $('.menu .item').tab();
+	    $('#id_talhao').parent().width('100%');
+
+	    // configura o tamanho do campo
+	    $('#umidade').parent().css('min-width', '0');
+	    $('#ardidos').parent().css('min-width', '0');
+	    $('#picados').parent().css('min-width', '0');
+	    $('#verdes').parent().css('min-width', '0');
+	    $('#impureza').parent().css('min-width', '0');
+	    $('#avariados').parent().css('min-width', '0');
+	    $('#partidos').parent().css('min-width', '0');
+
+	    // Mascara
+	    $('.moneyfull').find('input[type=text]').mask('#.##0', {reverse: true});
+	    $('.moneytwo').find('input[type=text]').mask('#.##', {reverse: true});
+
+	    // umidade
+		$("#umidade").change(function() {
+			vm.newEntity.umidade = $(this).val();
+
+			var entity = vm.Umidade;
+			var index = _.findIndex(entity, function(o) { return o.indice == vm.newEntity.umidade; });
+			vm.newEntity.perc_umidade = entity[index].desconto;
+
+		});
+
+	    // ardidos
+		$("#ardidos").change(function() {
+			vm.newEntity.ardidos = $(this).val();
+
+			var entity = vm.Ardidos;
+			var index = _.findIndex(entity, function(o) { return o.indice == vm.newEntity.ardidos; });
+			vm.newEntity.perc_ardidos = entity[index].desconto;
+
+		});
+
+	    // ardidos
+		$("#picados").change(function() {
+			vm.newEntity.picados = $(this).val();
+
+			var entity = vm.Picados;
+			var index = _.findIndex(entity, function(o) { return o.indice == vm.newEntity.picados; });
+			vm.newEntity.perc_picados = entity[index].desconto;
+
+		});
+
+	    // ardidos
+		$("#verdes").change(function() {
+			vm.newEntity.verdes = $(this).val();
+
+			var entity = vm.Verdes;
+			var index = _.findIndex(entity, function(o) { return o.indice == vm.newEntity.verdes; });
+			vm.newEntity.perc_verdes = entity[index].desconto;
+
+		});
+
+	    // ardidos
+		$("#impureza").change(function() {
+			vm.newEntity.impureza = $(this).val();
+
+			var entity = vm.Impureza;
+			var index = _.findIndex(entity, function(o) { return o.indice == vm.newEntity.impureza; });
+			vm.newEntity.perc_impureza = entity[index].desconto;
+
+		});
+
+	    // ardidos
+		$("#avariados").change(function() {
+			vm.newEntity.avariados = $(this).val();
+
+			var entity = vm.Avariados;
+			var index = _.findIndex(entity, function(o) { return o.indice == vm.newEntity.avariados; });
+			vm.newEntity.perc_avariados = entity[index].desconto;
+
+		});
+
+	    // ardidos
+		$("#partidos").change(function() {
+			vm.newEntity.partidos = $(this).val();
+
+			var entity = vm.Partidos;
+			var index = _.findIndex(entity, function(o) { return o.indice == vm.newEntity.partidos; });
+			vm.newEntity.perc_avariados = entity[index].desconto;
+
+		});
+
+	});
+	
+	executes.onShow.push(
+		function(self){
+            // SET THE SELECT VALUES
+            $('#id_safra').dropdown('set selected',[ self.$get('newEntity.id_safra') ]);
+            $('#id_caminhao_frete').dropdown('set selected',[ self.$get('newEntity.id_caminhao_frete') ]);
+            $('#id_silo').dropdown('set selected',[ self.$get('newEntity.id_silo') ]);
+            $('#id_tabela_classificacao').dropdown('set selected',[ self.$get('newEntity.id_tabela_classificacao') ]);
+
+            // 
+            $('#umidade').dropdown('set selected',[ self.$get('newEntity.umidade') ]);
+            $('#ardidos').dropdown('set selected',[ self.$get('newEntity.ardidos') ]);
+            $('#picados').dropdown('set selected',[ self.$get('newEntity.picados') ]);
+            $('#verdes').dropdown('set selected',[ self.$get('newEntity.picados') ]);
+            $('#impureza').dropdown('set selected',[ self.$get('newEntity.impureza') ]);
+            $('#avariados').dropdown('set selected',[ self.$get('newEntity.avariados') ]);
+            $('#partidos').dropdown('set selected',[ self.$get('newEntity.partidos') ]);
+
+        }
+	);
+
+	executes.onCreate.push(
+		function(entity){
+			// WORKAROUND
+			entity.id_safra = $('#id_safra').val();
+			entity.id_caminhao_frete = $('#id_caminhao_frete').val();
+			entity.id_silo = $('#id_silo').val();
+			entity.id_tabela_classificacao = $('#id_tabela_classificacao').val();
+
+			entity.umidade = $('#umidade').val();
+			entity.ardidos = $('#ardidos').val();
+			entity.picados = $('#picados').val();
+			entity.verdes = $('#verdes').val();
+			entity.impureza = $('#impureza').val();
+			entity.avariados = $('#avariados').val();
+			entity.partidos = $('#partidos').val();
+		}
+	);
+
+	executes.onCreateSub.push(
+		function(entity){
+
+			if($.isArray(entity)){
+				entity.push({
+					id_pesagem_producao: entity.id,
+					id_safra_talhao: $('#id_safra_talhao').val(),
+					peso_limpo: $('#peso_limpo').val(),
+					SafraTalhao: {
+						Talhao: {
+							nome: $('#id_safra_talhao option:selected').text()
+						}
+					}
+				});
+
+				$('#id_safra_talhao').val('');
+				$('#id_safra_talhao').parent().find('.text').text('');
+				$('#peso_limpo').val('');
+
+			} else {
+				console.log(entity);
+				//entity.id_pesagem_producao = entity.id;
+				entity.id_safra_talhao = $('#id_safra_talhao').val();
+				entity.peso_limpo = $('#peso_limpo').val();
+				
+				$('#id_safra_talhao').val('');
+				$('#id_safra_talhao').parent().find('.text').text('');
+				$('#peso_limpo').val('');
+
+			}
+		}
+	);
+
+	executes.onShowSub.push(
+		function(entity){
+			$('#id_talhao').dropdown('set selected',[ entity.id_talhao ]);
+			$('#area').val(entity.area);
+		}
+	);
+
+</script>
+
+<div class="ui modal fullscreen" id="add{{module|capitalize}}" style="zoom: 0.9;">
+	<i class="close icon"></i>
+	<div class="header">
+		Pesagem de produção
+	</div>
+
+	<div class="content">
+
+	<form action="#" @submit.prevent="AddNewUser" method="POST" class="ui form">
+			
+		<div class="fields">
+			{{ macros.vInput('id_pesagem', 'Ticket', 'newEntity.id_pesagem', 'text', 'Ticket', 'two') }}
+			{{ macros.vSelect('id_safra', 'Safra', '', 'four', 'Safra', 'id', 'descr') }}
+			{{ macros.vSelect('id_silo', 'Silo', '', 'four', 'Silo', 'id', 'descr') }}
+			{{ macros.vSelect('id_caminhao_frete', 'Frete', '', 'four', 'CaminhaoFrete', 'id', 'descr') }}
+			{{ macros.vInput('nome_motorista', 'Motorista', 'newEntity.nome_motorista', 'text', 'Motorista', 'four') }}
+		</div>
+
+		<div class="fields">
+			{{ macros.vInput('peso_bruto', 'Peso Bruto', 'newEntity.peso_bruto', 'text', 'Peso Bruto', 'moneyfull six') }}
+			{{ macros.vInput('peso_tara', 'Peso Tara', 'newEntity.peso_tara', 'text', 'Peso Tara', 'moneyfull six') }}
+			{{ macros.vInput('peso_total', 'Total', 'newEntity.peso_total', 'text', 'Peso Total', 'moneyfull six') }}
+		</div>
+
+		<div class="ui grid">
+		  <div class="eight wide column">
+
+			<div class="ui inverted grey raised segment">
+				<div class="fields">
+
+					{{ macros.vSelect('id_tabela_classificacao', 'Tabela', '', 'ten', 'TabelaClassificacao', 'id', 'descr') }}
+
+					{# verdes #}
+					{{ macros.vSelect('umidade', 'Umidade', 'newEntity.umidade', 'four', 'Umidade', 'indice', 'indice') }}
+					{{ macros.vInput('perc_umidade', '%', 'newEntity.perc_umidade', 'text', '%', 'moneytwo disabled two') }}
+				</div>
+
+				<div class="fields">
+					{# umidad #}
+					{{ macros.vSelect('verdes', 'Verdes', 'newEntity.verdes', 'four', 'Verdes', 'indice', 'indice') }}
+					{{ macros.vInput('perc_verdes', '%', 'newEntity.perc_verdes', 'text', '%', 'moneytwo disabled two') }}
+					
+					{# impureza #}
+					{{ macros.vSelect('impureza', 'Impureza', 'newEntity.impureza', 'four', 'Impureza', 'indice', 'indice') }}
+					{{ macros.vInput('perc_impureza', '%', 'newEntity.perc_impureza', 'text', '%', 'moneytwo disabled two') }}
+					
+					{{ macros.vSelect('ardidos', 'Ardidos', 'newEntity.ardidos', 'four', 'Umidade', 'indice', 'indice') }}
+					{{ macros.vInput('perc_ardidos', '%', 'newEntity.perc_ardidos', 'text', '%', 'moneytwo disabled two') }}
+				</div>
+
+				<div class="fields">
+
+
+					{{ macros.vSelect('picados', 'Picados', 'newEntity.picados', 'four', 'Picados', 'indice', 'indice') }}
+					{{ macros.vInput('perc_picados', '%', 'newEntity.perc_picados', 'text', '%', 'moneytwo disabled two') }}
+
+					{{ macros.vSelect('avariados', 'Avariados', 'newEntity.avariados', 'four', 'Avariados', 'indice', 'indice') }}
+					{{ macros.vInput('perc_avariados', '%', 'newEntity.perc_avariados', 'text', '%', 'moneytwo disabled two') }}
+
+					{# partidos #}
+					{{ macros.vSelect('partidos', 'Partidos', 'newEntity.partidos', 'four', 'Partidos', 'indice', 'indice') }}
+					{{ macros.vInput('perc_partidos', '%', 'newEntity.perc_partidos', 'text', '%', 'moneytwo disabled two') }}
+				</div>
+			</div>
+
+		  </div>
+		  <div class="eight wide column">
+
+				<div class="ui top attached tabular menu">
+				  <a class="item active" data-tab="first" style="margin-bottom: -2px;">Talhões</a>
+				  <a class="item" data-tab="arquivos" style="margin-bottom: -2px;">Arquivos</a>
+				</div>
+				<div class="ui bottom attached tab segment active" data-tab="first" style="height: 182px;">
+
+				  <div class="fields" style="zoom: 0.8;">
+					
+					<!-- -->
+					<!-- -->	  	
+					<table class="ui fixed single line celled table yellow very compact striped">
+					  <thead>
+					    <tr><th colspan="3">
+
+							  <div class="inline fields" style="margin-bottom: 0px;">
+
+								{{ macros.vSelect('id_safra_talhao', 'Talhão', '', 'ten', 'SafraTalhao', 'id', 'Talhao.nome', 'Safra.Cultura.descr') }}
+								{{ macros.vInput('peso_limpo', '% da carga', null, 'text', '% de carga', 'moneytwo six') }}
+							    <div class="one wide field">
+							    	<button class="ui green compact icon button" v-on:click="addPesoTalhao($event)">
+									  <i class="plus icon"></i>
+									</button>
+							    </div>
+
+							  </div>
+
+					    </th>
+					  </tr></thead>
+
+					  <tbody>
+					
+						<tr colspan="3" v-for="entitry in newEntity.SafraTalhaoPesagemProducao">
+						
+							<td v-on:dblclick="showSub(entitry, $event)" class="fourteen wide left aligned"><%entitry.SafraTalhao.Talhao.nome%></td>
+							<td v-on:dblclick="showSub(entitry, $event)" class="one wide center aligned"><%entitry.peso_limpo%></td>
+
+							<td class="one wide center aligned">
+								<button class="mini ui red compact icon button" v-on:click="deleteSub(entitry, $event)">
+									<i class="remove icon"></i>
+								</button>
+							</td>
+
+					  </tr>
+
+					  </tbody>
+					</table>
+					<!-- -->
+					<!-- -->
+
+				  </div>
+
+				</div>
+				<div class="ui bottom attached tab segment" data-tab="arquivos" style="height: 122px;">
+				  arquivos
+				</div>
+
+		  </div>
+		</div>
+
+
+{#  		<pre>
+			<% newEntity | json %>
+		</pre> #}
+		
+		<div class="ui grid">
+			<div class="sixteen wide column">
+				<div class="ui raised segment">
+					<div class="fields">
+						{{ macros.vInput('peso_umido', 'Peso umido', 'newEntity.peso_umido', 'text', 'Peso umido', 'moneyfull six') }}
+						{{ macros.vInput('peso_limpo', 'Peso limpo', 'newEntity.peso_limpo', 'text', 'Peso limpo', 'moneyfull six') }}
+						{{ macros.vInput('peso_desconto', 'Peso desconto', 'newEntity.peso_desconto', 'text', 'Peso desconto', 'moneyfull six') }}
+					</div>
+				</div>
+			</div>
+		</div>
+		
+	</form>
+
+	</div>
+	  <div class="actions">
+		<div class="ui black deny button" v-on:click="cancel($event)">
+		  Cancelar
+		</div>
+		<div class="ui positive right labeled icon button" v-on:click="create($event)">
+		  Salvar
+		  <i class="checkmark icon"></i>
+		</div>
+	  </div>
+</div>

@@ -1,0 +1,60 @@
+
+<script type="text/javascript">
+	executes.onShow.push(
+		function(self){
+	        var elCidade = $('#id_cidade');
+	        var id_cidade = self.$get('newEntity.id_cidade');
+	        elCidade.dropdown('set selected',[id_cidade]);
+		}
+	);
+
+	executes.onCreate.push(
+		function(entity){
+	        // WORKAROUND
+	        entity.id_cidade = $('#id_cidade').val();
+		}
+	);	
+
+</script>
+
+<div class="ui modal small" id="add{{module|capitalize}}">
+	<i class="close icon"></i>
+	<div class="header">
+		Adicionar usuário
+	</div>
+
+	<div class="content">
+
+	<form action="#" @submit.prevent="AddNewUser" method="POST" class="ui form">
+			
+		<div class="fields">
+			{{ macros.vInput('nome', 'Nome', 'newEntity.nome', 'text', 'Nome fazenda', 'sixteen') }}
+		</div>
+			
+		<div class="fields">
+			{{ macros.vInput('area_total', 'Área total', 'newEntity.area_total', 'text', 'Area total', 'eight') }}
+			
+			{{ macros.vInput('area_plantio', 'Área plantio', 'newEntity.area_plantio', 'text', 'Area plantio', 'eight') }}
+		</div>
+
+		<div class="fields">
+            
+			{{ macros.vSelect('id_cidade', 'Cidade', model, 'sixteen', 'subEntities', 'id', 'descr') }}
+			
+		</div>
+
+
+
+	</form>
+
+	</div>
+	  <div class="actions">
+		<div class="ui black deny button" v-on:click="cancel($event)">
+		  Cancelar
+		</div>
+		<div class="ui positive right labeled icon button" v-on:click="create($event)">
+		  Salvar
+		  <i class="checkmark icon"></i>
+		</div>
+	  </div>
+</div>

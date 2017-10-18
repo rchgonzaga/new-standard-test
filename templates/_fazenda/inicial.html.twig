@@ -1,0 +1,311 @@
+{% extends "layoutPadrao.html" %}
+
+{% block content %}
+
+	<div id="FazendaContainer">
+		{{ macros.path('Fazenda|Inicial')}}
+		{{ macros.header('Fazenda') }}
+
+{# 		<pre>
+			<%$data | json%>
+		</pre> #}
+
+		{# MODAL TOPBAR #}
+		{% include 'fazenda/top-bar.twig' %}
+		{# MODAL TOPBAR #}
+
+		{# MODAL GRID #}
+		{% include 'fazenda/grid-fazenda.twig' %}
+		{# MODAL GRID #}
+
+		{# MODAL DELETE #}
+		{% include 'fazenda/modal-confirmacao-delete.twig' %}
+		{# MODAL DELETE #}
+
+		{# MODAL NOVO #}
+		{% include 'fazenda/modal-novo-registro.twig' %}
+		{# MODAL NOVO #}
+
+	<script type="text/javascript">
+
+	function resetForm(hideModal){
+
+		$('#addUser input').popup('destroy');
+
+		$('#addUser input').css('border', '1px solid rgba(34,36,38,.15)');
+		$('#addUser input').removeAttr('data-content')
+			.removeAttr('data-variation', 'inverted')
+			.removeAttr('data-position', 'top left');
+
+		if(hideModal){
+			$('#addUser').modal('hide');
+			$('#deleteConfirmation').modal('hide');
+		}
+	}
+
+	function errorForm (data){
+		var concat = '';
+
+		$.each( data.errors, function( key, value ) {
+			if( !$('#'+key).length ){
+				concat += '<br>' + value + '<br>';	
+			}
+		});
+			
+		alertify.alert(
+			'Oops, acho que algo deu errado !!!', 
+			'<textarea style="margin: 0px;width: 100%;height: 114px;padding: 5px;">' + data.msg + ' - ' + concat + '</textarea>').show();
+		
+		$.each( data.errors, function( key, value ) {
+			$('#'+key).css('border-color', 'red');
+
+			$('#'+key).attr('data-content', value);
+			$('#'+key).attr('data-variation', 'inverted');
+			$('#'+key).attr('data-position', 'top left');
+
+		});
+	}
+
+	function start() {
+		$('select').dropdown();
+	};
+
+	// altera o delimitador de template do Vue
+	Vue.config.delimiters = ['<%', '%>'];
+
+	var vm = new Vue({
+		el: '#FazendaContainer',
+
+		// dados disponiveis no contexto
+		data: {
+			novoFazenda: {
+				nome: '',
+				cargo: '',
+				email: '',
+				senha: '',
+				telefone: '',
+				status: 0,
+				gerente: 0,
+				fazenda_e_fazenda: []
+			},
+
+			success: false,
+
+			edit: false,
+
+			fazendas: [],
+
+			fazendas: []
+		},
+
+		// metodos do contexto
+		methods: {
+
+			clear: function() {
+				// Clear form input
+				this.novoFazenda = {
+					nome: null,
+					cargo: null,
+					email: null,
+					senha: null,
+					telefone: null,
+					status: null,
+					gerente: null,
+					fazenda_e_fazenda: []
+				};
+			},
+			fetchAll: function () {
+				this.fetchData();
+				this.fetchFazendaData();
+			},
+			fetchData: function () {
+				resetForm();
+				this.$http.get('{{baseUrl()}}/fazenda/all', function (data) {
+					this.$set('fazendas', data);
+				})
+			},
+			fetchFazendaData: function () {
+				resetForm();
+				this.$http.get('{{baseUrl()}}/fazenda/all', function (data) {
+					this.$set('fazendas', data);
+				})
+			},
+			new: function(){
+				var self = this;
+				var elModal = $('#addUser');
+
+				resetForm();
+
+				// Clear form input
+				self.clear();
+
+				elModal.modal({
+					closable  : false,
+					onDeny    : function() {return false;},
+					onApprove : function() {return false;},
+					onHide	  : function() {
+						resetForm();
+
+						// Clear form input
+						self.clear();
+					},
+                    onVisible: function(){
+                        var elModal = $('#addUser');
+                              
+                        // if the height is higher than the normal, decrease the top margin    
+                        if(elModal.height() > 420){
+                            elModal.animate({ marginTop: '-283.5px' }, 100);
+                        } else {
+                            elModal.animate({ marginTop: '-209px' }, 100);
+                        }
+
+
+                    }
+				}).modal('show');
+			},
+			show: function(idFazenda, event){
+				var self = this;
+				resetForm();
+				this.$http.get('{{baseUrl()}}/fazenda/find/'+idFazenda, function (data) {
+					this.$set('novoFazenda', data);
+					var elModal = $('#addUser');
+
+                    // SET THE SELECT VALUES
+                    var elStatus = $('#status');
+                    var elGerente = $('#gerente');
+                    var status = self.$get('novoFazenda.status');
+                    var gerente = self.$get('novoFazenda.gerente');
+                    
+                    elStatus.dropdown('set selected',[status]);
+                    elGerente.dropdown('set selected',[gerente]);
+                            
+					elModal.modal({
+						onVisible: function(){
+                              
+                            // if the height is higher than the normal, decrease the top margin    
+                            if(elModal.height() > 420){
+                                elModal.animate({ marginTop: '-283.5px' }, 100);
+                            } else {
+                                elModal.animate({ marginTop: '-209px' }, 100);
+                            }
+
+						}
+					})
+					.modal('show');
+
+				})
+			},
+			delete: function(idFazenda, event){
+
+				var self = this;
+				resetForm();
+
+				$('#deleteConfirmation')
+				  .modal({
+				    closable  : false,
+				    onDeny    : function(){
+						resetForm(true);
+						return false;
+				    },
+				    onApprove : function() {
+
+						self.$http.post('{{baseUrl()}}/fazenda/postdelete', { id: idFazenda })
+						.success(function (response) {
+						    alertify.success('Registro excluido');
+						    self.fetchAll();
+						})
+						.error(function (response) {
+						    alertify.error('Erro ao apagar registro');
+						});
+
+				    }
+				  })
+				  .modal('show')
+				;
+			},
+			cancel: function(e){
+				resetForm(true);
+			},
+			create: function (e) {
+
+				e.preventDefault();
+
+				var self = this;
+				// User input
+				var user = this.novoFazenda;
+                
+                // Clear null values to prevent back-end error
+                user.fazenda_e_fazenda.clean(null);
+				resetForm();
+                
+                // WORKAROUND
+                user.gerente = $('#gerente').val();
+                user.status = $('#status').val()
+
+				// Send post request
+				this.$http.post('{{baseUrl()}}/fazenda/postcreate', user, function (data){
+					if(data.success){
+						// Reload page
+						self.fetchData();
+						self.fetchFazendaData();
+						alertify.success(data.msg);
+
+						resetForm(true);
+
+						// Clear form input
+						self.clear();
+
+					} else {
+						// Reload page
+						self.fetchData();
+						self.fetchFazendaData();
+						
+						// Treat the form errors
+						errorForm(data);
+			
+						$('#addUser input').popup();
+					}
+
+				});
+
+			},
+
+			addFazenda: function(e){
+				e.preventDefault();
+				var el = $('#id_fazenda option:selected');
+
+				this.novoFazenda.fazenda_e_fazenda.push({
+					id_fazenda: el.val(),
+					nome: el.text().trim()
+				});
+
+				console.log(this.novoFazenda);
+				console.log(el.text().trim());
+
+				// retira valores null
+				this.novoFazenda.fazenda_e_fazenda.clean(null);
+			},
+
+			showSub: function(e){
+				e.preventDefault();
+				console.log(e);
+			},
+
+			deleteSub: function(e){
+				e.preventDefault();
+				console.log(e);
+			}
+		},
+
+		// iniciar
+		ready: function () {
+			this.fetchData();
+			this.fetchFazendaData();
+			start();
+		}
+	});
+    
+
+	</script>
+
+{% endblock content %}

@@ -1,0 +1,128 @@
+
+{% macro vSelect(id, label, model, size, entity, key, value, labeladicional) %}
+	<div class="{{size}} wide field">
+        <label>{{label}}</label>
+        <select v-model="{{model}}" id="{{id}}" name="{{id}}" >
+            <option value=" ">*</option>
+            <option v-for="entity in {{entity}}" value="<%entity.{{key}}%>"><%entity.{{value}}%> {% if labeladicional %}-  <%entity.{{labeladicional}}%> {% endif %} </option>
+        </select>
+	</div>
+{% endmacro %}
+
+{% macro vInput(id, label, model, type, placeholder, size) %}
+  <div class="{{size}} wide field">
+    <label>{{label}}</label>
+    <input 
+      type="text" 
+      placeholder="{{placeholder}}" 
+      {% if model %} v-model="{{model}}" {% endif %} 
+      id="{{id}}" 
+      name="{{id}}">
+  </div>
+{% endmacro %}
+
+{% macro vSelectStatic(id, label, model, size, entity, style) %}
+  <div class="{{size}} wide field">
+        <label>{{label}}</label>
+        <select v-model="{{model}}" id="{{id}}" name="{{id}}" style="width: 100%;">
+          {% for key, value in entity %}
+              <option value="{{ key }}">{{ value }}</option>
+          {% endfor %}
+        </select>
+  </div>
+{% endmacro %}
+
+{#
+  label,
+  name,
+  value,
+  type,
+  id,
+  placeholder,
+  errors,
+  class,
+  size,
+  addon,
+  style
+#}
+{% macro input(label, name, value, type, id, placeholder, errors, class, size, addon, disabled) %}
+  <div class="col-md-{{ size|default('6') }}">
+      <div class="form-group {% if errors %} has-error {% endif %}">
+        <label for="{{ id|default('id_'~name) }}">{{label}}</label>
+        
+        {% if addon %}
+          <div class="input-group">
+        {% endif %}
+
+          <input type="{{ type|default('text') }}" 
+            {% if name %}name="{{ name }}" {% endif %}
+            id="{{ id|default('id_'~name) }}" 
+            value="{{ value|e }}" 
+            class="{{ class|default('form-control') }}" 
+            placeholder="{{ placeholder|default('') }}" 
+            {% if disabled %} disabled {% endif %} />
+
+        {% if addon %}
+            <div class="input-group-addon">{{addon}}</div>
+          </div>
+        {% endif %}
+
+        {% if errors %} <div class="text-danger"> {{errors}} </div> {% endif %}
+     </div>
+  </div>
+{% endmacro %}
+
+{# Cria um barra do caminho do endereço que levou o usuario até a tela#}
+{% macro path(text) %}
+    {% set paths = text|split('|') %}
+    <div class="ui small breadcrumb" style="margin-top: 5px">
+  
+      {% for p in paths %}
+
+        {% if p == paths|last %}
+          <div class="active section">{{p}}</div>
+        {% else %}
+          <a class="section">{{p}}</a>
+          <i class="right chevron icon divider"></i>
+        {% endif %}
+
+      {% endfor %}
+
+    </div>
+{% endmacro %}
+
+{# header
+Imprime um H3 na tela #}
+{% macro header(text) %}
+    <h3 class="ui dividing header" style="margin-top: 5px">
+        {{text}}
+    </h3>
+{% endmacro %}
+    
+
+
+{% macro textarea(name, value, class) %}
+  <textarea name="{{ name }}" id="{{ id|default(name) }}" class="{{ class }}">{{ value|e }}</textarea>
+{% endmacro %}
+
+{% macro label(id, content, class) %}
+  <label for="{{ id }}" class="{{ class }}">{{ content|e }}</label>
+{% endmacro %}
+
+{% macro checkbox(name, value, id, class) %}
+  <input type="checkbox" name="{{ name }}" id="{{ id|default(name) }}" class="{{ class }}" value="1"{% if value %} checked="checked"{% endif %} />
+{% endmacro %}
+
+{% macro select(label, name, value, type, id, placeholder, errors, class, size, addon, datas) %}
+  <select name="{{ name }}" id="{{ id|default(name) }}" class="{{ class }}">
+    {% for key, name in values %}
+    <option value="{{ key }}"{% if value == key %} selected="selected"{% endif %}>{{ name }}</option>
+    {% endfor %}
+  </select>
+{% endmacro %}
+
+{% macro radio(name, values, value, id, class) %}
+  {% for key, label in values %}
+  <label{% if value == key %} class="selected"{% endif %} ><input type="radio" name="{{ name }}" id="{{ id|default(name) ~ key }}" value="{{ key }}"{% if value == key %} checked="checked"{% endif %} /> {{ label }}</label>
+  {% endfor %}
+{% endmacro %}

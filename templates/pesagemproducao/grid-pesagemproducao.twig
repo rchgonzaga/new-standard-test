@@ -1,0 +1,49 @@
+<table class="ui selectable olive compact celled definition table">
+	
+	<thead>
+		<tr>
+			<th class="one wide"></th>
+			<th class="four wide">Ticket</th>
+			<th class="four wide">Fazenda</th>
+			<th class="four wide">Cultura</th>
+			<th class="four wide">Silo</th>
+			
+			<th class="four wide">Peso <%sumOfQuantities()%></div></th>
+
+			<th class="one wide center aligned"></th>
+		</tr>
+	</thead>
+	<tbody>
+
+	<tr v-for="entity in entities | filterBy searchKey | paginate" style="cursor: pointer;">
+		<td class="center aligned" v-on:dblclick="show(entity.id, $event)"><%entity.id%></td>
+		<td v-on:dblclick="show(entity.id, $event)"><%entity.id_pesagem%></td>
+		<td v-on:dblclick="show(entity.id, $event)"><%entity.Safra.Fazenda.nome%></td>
+		<td v-on:dblclick="show(entity.id, $event)"><%entity.Safra.Cultura.descr%></td>
+		<td v-on:dblclick="show(entity.id, $event)"><%entity.Silo.descr%></td>
+
+		<td v-on:dblclick="show(entity.id, $event)"><%formatNumber(entity.peso_bruto - entity.peso_tara)%></td>
+
+		<td class="center aligned">
+			<button class="mini ui red compact icon button" v-on:click="delete(entity, $event)">
+				<i class="remove icon"></i>
+			</button>
+		</td>
+	</tr>
+
+  </tbody>
+  <tfoot class="full-width">
+	<tr>
+		<th colspan="60">
+
+			<div class="ui right floated pagination menu">
+				<a class="icon item"><i class="left chevron icon"></i></a>
+				<a v-for="pageNumber in totalPages" class="item"  href="#" v-on:click="setPage(pageNumber)"><% pageNumber + 1 %></a>
+				<a class="icon item">
+				<i class="right chevron icon"></i></a>
+			</div>
+		</th>
+	</tr>
+
+  </tfoot>
+</table>

@@ -1,0 +1,363 @@
+{% extends "layoutPadrao.html" %}
+
+{% block content %}
+
+	<script type="text/javascript">
+		var mixin = {
+			data: { 
+				extraLoad: []
+			},
+			created: function () {
+				this.sho();
+			},
+			methods: {
+				sho: function(){
+					console.log('DIRGRETA');
+				}
+			}
+		};
+		
+		var executes = {
+			onShow: [],
+			onCreate: []
+		};
+		
+		// immutable
+		var table = {
+			id: null,
+			nome: null,
+			cargo: null,
+			email: null,
+			senha: null,
+			telefone: null,
+			status: null,
+			gerente: null,
+			FazendaEUsuario: []
+		};
+		
+		var globalData = {
+			newEntity: table,
+			success: false,
+			edit: false,
+			entities: [],
+			subEntities: []
+		};
+	</script>
+	
+	<div id="UsuarioContainer">
+		{{ macros.path('Usuario|Inicial')}}
+		{{ macros.header('Usuario') }}
+
+{# 		<pre>
+			<%$data | json%>
+		</pre> #}
+
+		{# MODAL TOPBAR #}
+		{% include 'usuario/top-bar.twig' %}
+		{# MODAL TOPBAR #}
+
+		{# MODAL GRID #}
+		{% include 'usuario/grid-usuario.twig' %}
+		{# MODAL GRID #}
+
+		{# MODAL DELETE #}
+		{% include 'usuario/modal-confirmacao-delete.twig' %}
+		{# MODAL DELETE #}
+
+		{# MODAL NOVO #}
+		{% include 'usuario/modal-novo-registro.twig' %}
+		{# MODAL NOVO #}
+
+	<script type="text/javascript">
+
+	function resetForm(hideModal){
+		
+		hideModal = (hideModal ? hideModal : false);
+		
+		$('#addUser input').popup('destroy');
+
+		$('#addUser input').css('border', '1px solid rgba(34,36,38,.15)');
+		$('#addUser input').removeAttr('data-content')
+			.removeAttr('data-variation', 'inverted')
+			.removeAttr('data-position', 'top left');
+
+		if(hideModal){
+			$('#addUser').modal('hide');
+			$('#deleteConfirmation').modal('hide');
+		}
+	}
+
+	function errorForm (data){
+		var concat = '';
+
+		$.each( data.errors, function( key, value ) {
+			if( !$('#'+key).length ){
+				concat += '<br>' + value + '<br>';	
+			}
+		});
+			
+		alertify.alert(
+			'Oops, acho que algo deu errado !!!', 
+			'<textarea style="margin: 0px;width: 100%;height: 114px;padding: 5px;">' + data.msg + ' - ' + concat + '</textarea>').show();
+		
+		$.each( data.errors, function( key, value ) {
+			$('#'+key).css('border-color', 'red');
+
+			$('#'+key).attr('data-content', value);
+			$('#'+key).attr('data-variation', 'inverted');
+			$('#'+key).attr('data-position', 'top left');
+
+		});
+	}
+
+	function start() {
+		$('select').dropdown();
+	};
+	
+	var service = 'usuarioservice';
+
+	// altera o delimitador de template do Vue
+	Vue.config.delimiters = ['<%', '%>'];
+
+	var vm = new Vue({
+		el: '#UsuarioContainer',
+
+		// dados disponiveis no contexto
+		data: globalData,
+			
+		/**
+		 * Declaração de todos os metodos do modulo
+		*/
+		methods: {
+
+			clear: function() {
+				// Clear form input
+				this.novoUsuario = table;
+			},
+			
+			/**
+			 * Executa chama de todos os metodos fetchAll
+			*/
+			fetchAll: function () {
+				this.fetchData();
+				this.fetchFazendaData();
+			},
+			
+			/**
+			 * Recupera todos os dados
+			*/
+			fetchData: function () {
+				resetForm();
+				this.$http.get('{{baseUrl()}}/'+service+'/all', function (data) {
+					this.$set('usuarios', data);
+				})
+			},
+			
+			/**
+			 * Recupera todos os dados das fazendas
+			*/
+			fetchFazendaData: function () {
+				resetForm();
+				this.$http.get('{{baseUrl()}}/fazendaservice/all', function (data) {
+					this.$set('fazendas', data);
+				})
+			},
+			
+			/**
+			 * Metodo de criação de registro
+			*/
+			new: function(){
+				var self = this;
+				var elModal = $('#addUser');
+
+				resetForm();
+
+				// Clear form input
+				self.clear();
+
+				elModal.modal({
+					closable  : false,
+					onDeny    : function() {return false;},
+					onApprove : function() {return false;},
+					onHide	  : function() {
+						resetForm();
+
+						// Clear form input
+						self.clear();
+					},
+                    onVisible: function(){
+                        var elModal = $('#addUser');
+                              
+                        // if the height is higher than the normal, decrease the top margin    
+                        if(elModal.height() > 420){
+                            elModal.animate({ marginTop: '-283.5px' }, 100);
+                        } else {
+                            elModal.animate({ marginTop: '-209px' }, 100);
+                        }
+
+
+                    }
+				}).modal('show');
+			},
+			
+			/**
+			 * Metodo responsável por recuperar os dados para edição
+			*/
+			show: function(idUsuario, event){
+				var self = this;
+				resetForm();
+				this.$http.get('{{baseUrl()}}/'+service+'/findfull/'+idUsuario, function (data) {
+					this.$set('novoUsuario', data);
+					var elModal = $('#addUser');
+
+					// Executa todos as funcões declaradas nos arquivos separados
+					$.each( executes.onShow, function( key, func ) {
+						func(self);
+					});
+                            
+					elModal.modal({
+						onVisible: function(){
+                              
+                            // if the height is higher than the normal, decrease the top margin    
+                            if(elModal.height() > 420){
+                                elModal.animate({ marginTop: '-283.5px' }, 100);
+                            } else {
+                                elModal.animate({ marginTop: '-209px' }, 100);
+                            }
+
+							elModal.modal('refresh');
+
+						}
+					})
+					.modal('show');
+
+				})
+			},
+			
+			/**
+			 * Metodo responsável por excluir um registro
+			*/
+			delete: function(idUsuario, event){
+
+				var self = this;
+				resetForm();
+
+				$('#deleteConfirmation')
+				  .modal({
+				    closable  : false,
+				    onDeny    : function(){
+						resetForm(true);
+						return false;
+				    },
+				    onApprove : function() {
+
+						self.$http.post('{{baseUrl()}}/'+service+'/postdelete', { id: idUsuario })
+						.success(function (response) {
+						    alertify.success('Registro excluido');
+						    self.fetchAll();
+						})
+						.error(function (response) {
+						    alertify.error('Erro ao apagar registro');
+						});
+
+				    }
+				  })
+				  .modal('show')
+				;
+			},
+			
+			/**
+			 * Reseta o form
+			*/
+			cancel: function(e){
+				resetForm(true);
+			},
+			
+			/**
+			 * Metodo responsável por recuperar os dados para edição
+			*/
+			create: function (e) {
+
+				e.preventDefault();
+
+				var self = this;
+				// User input
+				var entity = this.novoUsuario;
+                
+                // Clear null values to prevent back-end error
+                entity.FazendaEUsuario.clean(null);
+				resetForm();
+
+				// Executa todos as funcões declaradas nos arquivos separados
+				$.each( executes.onCreate, function( key, func ) {
+					func(entity);
+				});
+
+				// Send post request
+				this.$http.post('{{baseUrl()}}/usuarioservice/postcreate', entity, function (data){
+					
+					if(data.success){
+						// Reload page
+						self.fetchData();
+						self.fetchFazendaData();
+						alertify.success(data.msg);
+
+						resetForm(true);
+
+						// Clear form input
+						self.clear();
+
+					} else {
+						// Reload page
+						self.fetchData();
+						self.fetchFazendaData();
+
+						// Treat the form errors
+						//errorForm(data);
+			
+						$('#addUser input').popup();
+					}
+
+				});
+
+			},
+
+			addFazenda: function(e){
+				e.preventDefault();
+				var el = $('#id_fazenda option:selected');
+
+				this.novoUsuario.FazendaEUsuario.push({
+					id_fazenda: el.val(),
+					nome: el.text().trim()
+				});
+
+				// retira valores null
+				this.novoUsuario.FazendaEUsuario.clean(null);
+
+				var elModal = $('#addUser');
+				elModal.modal('refresh');
+			},
+
+			showSub: function(e){
+				e.preventDefault();
+				console.log(e);
+			},
+
+			deleteSub: function(e){
+				e.preventDefault();
+				console.log(e);
+			}
+		},
+
+		// iniciar
+		ready: function () {
+			this.fetchData();
+			this.fetchFazendaData();
+			start();
+		}
+	});
+    
+
+	</script>
+
+{% endblock content %}

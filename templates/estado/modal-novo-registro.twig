@@ -1,0 +1,69 @@
+<script type="text/javascript">
+	executes.onShow.push(
+		function(self){
+            // SET THE SELECT VALUES
+            var elEstado = $('#id_pais');
+            var id_pais = self.$get('newEntity.id_pais');
+            elEstado.dropdown('set selected',[id_pais]);
+		}
+	);
+
+	executes.onCreate.push(
+		function(entity){
+			// WORKAROUND
+			entity.id_pais = $('#id_pais').val();
+		}
+	);	
+
+</script>
+
+<div class="ui modal small" id="add{{module|capitalize}}">
+	<i class="close icon"></i>
+	<div class="header">
+		Adicionar
+	</div>
+
+	<div class="content">
+
+	<form action="#" @submit.prevent="AddNewUser" method="POST" class="ui form">
+			
+		<div class="fields">
+
+		  <div class="nine wide field">
+			<label>Nome</label>
+			<input type="text" placeholder="Estado" v-model="newEntity.descr" id="descr" name="descr" style="text-transform:uppercase">
+		  </div>
+
+		  <div class="seven wide field">
+			<label>Abreviação</label>
+			<input type="text" placeholder="Abreviação" v-model="newEntity.abreviacao" id="abreviacao" name="abreviacao" >
+		  </div>
+
+		</div>
+
+		<div class="fields">
+            
+			<div class="sixteen wide field">
+                <label>Pais</label>
+                <select v-model="newEntity.id_pais" id="id_pais" name="id_pais" >
+                    <option v-for="entity in subEntities" value="<%entity.id%>"><%entity.descr%> <%newEntity.id_pais%></option>
+                </select>
+			</div>
+			
+		</div>
+
+
+
+	</form>
+
+	</div>
+	  <div class="actions">
+		<div class="ui black deny button" v-on:click="cancel($event)">
+		  Cancelar
+		</div>
+		<div class="ui positive right labeled icon button" v-on:click="create($event)">
+		  Salvar
+		  <i class="checkmark icon"></i>
+		</div>
+	  </div>
+</div>

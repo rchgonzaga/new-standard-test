@@ -1,0 +1,22 @@
+1 - quando apontar km rodado, informa o km inicial e km final, fazendo a conta.
+2 - incluir mapa.
+3 - na pagina inicial dos casos, fazer uma somatoria do todos os custo 
+5 - cadeado para liberação de visualização do caso pelo cliente
+
+7 - ao lancar km, somar +75 km e deixar a numeração original salva
+8 - criar um botão para clonar um caso, modificando alguns campos
+9 - criar uma aba para quando o processo for distribuido, pedir o numer da distribuicao e manter um historico
+	- Nome do oficial
+	- Nro da vara
+	- Telefone do oficial
+	- Telefone da vara
+	- Comarca de destribuicao
+	- Local ( Pais, Estado, Cidade )
+	- Data
+10 - criar uma trava de alteração das informações do sistema
+11 - enviar email quando um arquivo for incluido ou alterado
+12 - exibir o codigo do caso
+
+
+13 - Criar tela de saldo por localizador - ADIANTAMENTO
+14 - Informar do upload do arquivo

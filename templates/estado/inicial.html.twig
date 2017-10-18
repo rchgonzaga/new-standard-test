@@ -1,0 +1,338 @@
+{% extends "layoutPadrao.html" %}
+
+{% set module = 'estado' %}
+
+{% block content %}
+
+	<script type="text/javascript">
+		var mixin = {
+			data: { 
+				extraLoad: []
+			},
+			created: function () {
+				this.sho();
+			},
+			methods: {
+				sho: function(){
+					console.log('DIRGRETA');
+				}
+			}
+		};
+		
+		var executes = {
+			onShow: [],
+			onCreate: []
+		};
+		
+		// immutable
+		var table = {
+			id: null,
+			id_pais: null,
+			descr: null,
+			abreviacao: null
+		};
+		
+		var globalData = {
+			newEntity: table,
+			success: false,
+			edit: false,
+			entities: [],
+			subEntities: []
+		};
+	</script>
+	
+	<div id="{{module|capitalize}}Container">
+		{{ macros.path( module|capitalize ~ '|Inicial')}}
+		{{ macros.header( module|capitalize) }}
+
+		{#<pre>
+			<%$data | json%>
+		</pre>#}
+
+		{# MODAL TOPBAR #}
+		{% include module ~ '/top-bar.twig' %}
+		{# MODAL TOPBAR #}
+
+		{# MODAL GRID #}
+		{% include module ~ '/grid-' ~ module ~ '.twig' %}
+		{# MODAL GRID #}
+
+		{# MODAL DELETE #}
+		{% include module ~ '/modal-confirmacao-delete.twig' %}
+		{# MODAL DELETE #}
+
+		{# MODAL NOVO #}
+		{% include module ~ '/modal-novo-registro.twig' %}
+		{# MODAL NOVO #}
+
+	<script type="text/javascript">
+
+	function resetForm(hideModal){
+
+		$('#add{{module|capitalize}} input').popup('destroy');
+
+		$('#add{{module|capitalize}} input').css('border', '1px solid rgba(34,36,38,.15)');
+		$('#add{{module|capitalize}} input').removeAttr('data-content')
+			.removeAttr('data-variation', 'inverted')
+			.removeAttr('data-position', 'top left');
+
+		if(hideModal){
+			$('#add{{module|capitalize}}').modal('hide');
+			$('#deleteConfirmation').modal('hide');
+		}
+	}
+
+	function errorForm (data){
+		var concat = '';
+
+		$.each( data.errors, function( key, value ) {
+			if( !$('#'+key).length ){
+				concat += '<br>' + value + '<br>';	
+			}
+		});
+			
+		alertify.alert(
+			'Oops, acho que algo deu errado !!!', 
+			'<textarea style="margin: 0px;width: 100%;height: 114px;padding: 5px;">' + data.msg + ' - ' + concat + '</textarea>').show();
+		
+		$.each( data.errors, function( key, value ) {
+			$('#'+key).css('border-color', 'red');
+
+			$('#'+key).attr('data-content', value);
+			$('#'+key).attr('data-variation', 'inverted');
+			$('#'+key).attr('data-position', 'top left');
+
+		});
+	}
+
+	function start() {
+		$('select').dropdown();
+	};
+	
+	var service = '{{module}}service';
+	var subService = 'paisservice';
+
+	// altera o delimitador de template do Vue
+	Vue.config.delimiters = ['<%', '%>'];
+
+	var vm = new Vue({
+		el: '#{{module|capitalize}}Container',
+
+		// dados disponiveis no contexto
+		data: globalData,
+			
+		/**
+		 * Declaração de todos os metodos do modulo
+		*/
+		methods: {
+
+			clear: function() {
+				// Clear form input
+				this.newEntity = table;
+			},
+			
+			/**
+			 * Executa chama de todos os metodos fetchAll
+			*/
+			fetchAll: function () {
+				this.fetchData();
+				this.fetchSubEntitiesData();
+			},
+			
+			/**
+			 * Recupera todos os dados
+			*/
+			fetchData: function () {
+				resetForm();
+				this.$http.get('{{baseUrl()}}/'+service+'/all', function (data) {
+					this.$set('entities', data);
+				})
+			},
+			
+			/**
+			 * Recupera todos os dados da subentitie
+			*/
+			fetchSubEntitiesData: function () {
+				resetForm();
+				this.$http.get('{{baseUrl()}}/'+subService+'/all', function (data) {
+					this.$set('subEntities', data);
+				})
+			},
+			
+			/**
+			 * Metodo de criação de registro
+			*/
+			new: function(){
+				var self = this;
+				var elModal = $('#add{{module|capitalize}}');
+
+				resetForm();
+
+				// Clear form input
+				self.clear();
+
+				elModal.modal({
+					closable  : false,
+					onDeny    : function() {return false;},
+					onApprove : function() {return false;},
+					onHide	  : function() {
+						resetForm();
+
+						// Clear form input
+						self.clear();
+					},
+                    onVisible: function(){
+                        var elModal = $('#add{{module|capitalize}}');
+                              
+                        // if the height is higher than the normal, decrease the top margin    
+                        if(elModal.height() > 420){
+                            elModal.animate({ marginTop: '-283.5px' }, 100);
+                        } else {
+                            elModal.animate({ marginTop: '-209px' }, 100);
+                        }
+
+
+                    }
+				}).modal('show');
+			},
+			
+			/**
+			 * Metodo responsável por recuperar os dados para edição
+			*/
+			show: function(idEntity, event){
+				var self = this;
+				resetForm();
+				this.$http.get('{{baseUrl()}}/'+service+'/find/'+idEntity, function (data) {
+					this.$set('newEntity', data);
+					var elModal = $('#add{{module|capitalize}}');
+
+					// Executa todos as funcões declaradas nos arquivos separados
+					$.each( executes.onShow, function( key, func ) {
+						func(self);
+					});
+                            
+					elModal.modal({
+						onVisible: function(){
+                              
+                            // if the height is higher than the normal, decrease the top margin    
+                            if(elModal.height() > 420){
+                                elModal.animate({ marginTop: '-283.5px' }, 100);
+                            } else {
+                                elModal.animate({ marginTop: '-209px' }, 100);
+                            }
+
+						}
+					})
+					.modal('show');
+
+				})
+			},
+			
+			/**
+			 * Metodo responsável por excluir um registro
+			*/
+			delete: function(idEntity, event){
+
+				var self = this;
+				resetForm();
+
+				$('#deleteConfirmation')
+				  .modal({
+				    closable  : false,
+				    onDeny    : function(){
+						resetForm(true);
+						return false;
+				    },
+				    onApprove : function() {
+
+						self.$http.post('{{baseUrl()}}/'+service+'/postdelete', { id: idEntity })
+						.success(function (response) {
+						    alertify.success('Registro excluido');
+						    self.fetchAll();
+						})
+						.error(function (response) {
+						    alertify.error('Erro ao apagar registro');
+						});
+
+				    }
+				  })
+				  .modal('show')
+				;
+			},
+			
+			/**
+			 * Reseta o form
+			*/
+			cancel: function(e){
+				resetForm(true);
+			},
+			
+			/**
+			 * Metodo responsável por recuperar os dados para edição
+			*/
+			create: function (e) {
+
+				e.preventDefault();
+
+				var self = this;
+				// User input
+				var entity = _.pick(JSON.parse(JSON.stringify(this.newEntity)), _.keys(table));
+                
+                // Clear null values to prevent back-end error
+				resetForm();
+
+				// Executa todos as funcões declaradas nos arquivos separados
+				$.each( executes.onCreate, function( key, func ) {
+					func(entity);
+				});
+
+				// Send post request
+				this.$http.post('{{baseUrl()}}/{{module}}service/postcreate', entity, function (data){
+					
+					if(data.success){
+						// Reload page
+						self.fetchData();
+						alertify.success(data.msg);
+
+						resetForm(true);
+
+						// Clear form input
+						self.clear();
+
+					} else {
+						// Reload page
+						self.fetchData();
+
+						// Treat the form errors
+						errorForm(data);
+			
+						$('#add{{module|capitalize}} input').popup();
+					}
+
+				});
+
+			},
+
+			showSub: function(e){
+				e.preventDefault();
+				console.log(e);
+			},
+
+			deleteSub: function(e){
+				e.preventDefault();
+				console.log(e);
+			}
+		},
+
+		// iniciar
+		ready: function () {
+			this.fetchData();
+			this.fetchSubEntitiesData();
+			start();
+		}
+	});
+    
+
+	</script>
+
+{% endblock content %}

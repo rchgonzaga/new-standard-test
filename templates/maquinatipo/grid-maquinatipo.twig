@@ -1,0 +1,39 @@
+<table class="ui selectable olive compact celled definition table">
+	<thead>
+		<tr>
+			<th></th>
+			<th>Tipo</th>
+			<th></th>
+		</tr>
+	</thead>
+	<tbody>
+
+	<tr v-for="entity in entities" style="cursor: pointer;">
+		<td class="center aligned" v-on:dblclick="show(entity.id, $event)"><%entity.id%></td>
+		<td v-on:dblclick="show(entity.id, $event)"><%entity.descr%></td>
+		<td class="center aligned">
+			<button class="mini ui red compact icon button" v-on:click="delete(entity.id, $event)">
+				<i class="remove icon"></i>
+			</button>
+		</td>
+	</tr>
+
+  </tbody>
+  <tfoot class="full-width">
+
+	{#<tr>
+		<th colspan="60">
+			<div class="ui right floated pagination menu">
+				<a class="icon item"><i class="left chevron icon"></i></a>
+				<a class="item">1</a>
+				<a class="item">2</a>
+				<a class="item">3</a>
+				<a class="item">4</a>
+				<a class="icon item">
+				<i class="right chevron icon"></i></a>
+			</div>
+		</th>
+	</tr>#}
+
+  </tfoot>
+</table>

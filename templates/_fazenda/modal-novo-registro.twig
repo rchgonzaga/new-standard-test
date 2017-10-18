@@ -1,0 +1,48 @@
+<div class="ui modal fullscreen" id="addUser">
+	<i class="close icon"></i>
+	<div class="header">
+		Adicionar fazenda
+	</div>
+
+	<div class="content">
+
+	<form action="#" @submit.prevent="AddNewFarm" method="POST" class="ui form">
+			
+		<div class="fields">
+		  <div class="six wide field">
+			<label>Nome</label>
+			<input type="text" placeholder="Nome" v-model="novoFazenda.nome" id="nome" name="nome" style="text-transform:uppercase">
+		  </div>
+		  <div class="four wide field">
+			<label>Cargo</label>
+			<input type="text" placeholder="Descrição do cargo" v-model="novoFazenda.area_total" id="area_total" name="area_total" >
+		  </div>
+		  <div class="six wide field">
+			<label>Email</label>
+			<input type="text" placeholder="Email" v-model="novoFazenda.area_plantio" id="area_plantio" name="area_plantio">
+		  </div>
+		</div>
+
+		<div style="margin-top: 5.286px;" class="ui sub header">Cidade</div>
+
+				<select name="skills" class="ui fluid normal dropdown">
+						
+						<option value="<%cidade.id%>" v-for="cidade in cidades">
+							<%cidade.nome%>
+						</option>
+						
+				</select>
+
+			</form>
+
+			</div>
+				<div class="actions">
+				<div class="ui black deny button" v-on:click="cancel($event)">
+					Cancelar
+				</div>
+				<div class="ui positive right labeled icon button" v-on:click="create($event)">
+					Salvar
+					<i class="checkmark icon"></i>
+				</div>
+				</div>
+		</div>

@@ -1,0 +1,68 @@
+<script type="text/javascript">
+	executes.onShow.push(
+		function(self){
+            // SET THE SELECT VALUES
+            $('#id_fazenda').dropdown('set selected',[ self.$get('newEntity.id_fazenda') ]);
+
+            $('#status').dropdown('set selected',[ self.$get('newEntity.status') ]);
+            $('#gerente').dropdown('set selected',[ self.$get('newEntity.gerente') ]);
+            $('#operacional').dropdown('set selected',[ self.$get('newEntity.operacional') ]);
+		}
+	);
+
+	executes.onCreate.push(
+		function(entity){
+			// WORKAROUND
+			entity.id_fazenda = $('#id_fazenda').val();
+			
+			entity.status = $('#status').val();
+			entity.gerente = $('#gerente').val();
+			entity.operacional = $('#operacional').val();
+		}
+	);	
+
+</script>
+<div class="ui modal small" id="add{{module|capitalize}}">
+	<i class="close icon"></i>
+	<div class="header">
+		Mão de obra
+	</div>
+
+	<div class="content">
+
+	<form action="#" @submit.prevent="AddNewUser" method="POST" class="ui form">
+			
+		<div class="fields">
+			{{ macros.vInput('nome', 'Nome do funcionário', 'newEntity.nome', 'text', 'Nome do funcionario', 'sixteen') }}
+		</div>
+			
+		<div class="fields">
+			{{ macros.vInput('cargo', 'Cargo do funcionário', 'newEntity.cargo', 'text', 'Cargo do funcionario', 'six') }}
+			{{ macros.vInput('email', 'Email do funcionário', 'newEntity.email', 'text', 'Email do funcionario', 'five') }}
+			{{ macros.vInput('telefone', 'Telefone', 'newEntity.telefone', 'text', 'Telefone do funcionario', 'five') }}
+		</div>
+
+		<div class="fields">
+			{{ macros.vSelectStatic('status', 'Status', 'newEntity.status', 'five', { 'True': 'Sim', 'False': 'Não'}) }}
+			{{ macros.vSelectStatic('gerente', 'Gerente', 'newEntity.gerente', 'five', { 'True': 'Sim', 'False': 'Não'}) }}
+			{{ macros.vSelectStatic('operacional', 'Operacional', 'newEntity.operacional', 'six', { 'True': 'Sim', 'False': 'Não'}) }}
+		</div>
+		
+		<div class="fields">
+			{{ macros.vInput('custo_hora', 'Custo por hora', 'newEntity.custo_hora', 'text', 'Custo por hora', 'eight') }}
+			{{ macros.vSelect('id_fazenda', 'Fazenda', '', 'eight', 'Fazenda', 'id', 'nome') }}
+		</div>
+
+	</form>
+
+	</div>
+	  <div class="actions">
+		<div class="ui black deny button" v-on:click="cancel($event)">
+		  Cancelar
+		</div>
+		<div class="ui positive right labeled icon button" v-on:click="create($event)">
+		  Salvar
+		  <i class="checkmark icon"></i>
+		</div>
+	  </div>
+</div>

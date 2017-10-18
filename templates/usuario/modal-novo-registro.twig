@@ -1,0 +1,146 @@
+
+
+<script type="text/javascript">
+	executes.onShow.push(
+		function(self){
+
+	        // SET THE SELECT VALUES
+	        var elStatus = $('#status');
+	        var elGerente = $('#gerente');
+	        var status = self.$get('novoUsuario.status');
+	        var gerente = self.$get('novoUsuario.gerente');
+	        
+	        elStatus.dropdown('set selected',[status]);
+	        elGerente.dropdown('set selected',[gerente]);
+		}
+	);
+
+	executes.onCreate.push(
+		function(entity){                
+		    // WORKAROUND
+		    entity.gerente = $('#gerente').val();
+		    entity.status = $('#status').val();
+		}
+	);	
+
+</script>                
+<div class="ui modal fullscreen" id="addUser">
+	<i class="close icon"></i>
+	<div class="header">
+		Adicionar usuário
+	</div>
+
+	<div class="content">
+
+	<form action="#" @submit.prevent="AddNewUser" method="POST" class="ui form">
+			
+		<div class="fields">
+		  <div class="six wide field">
+			<label>Nome</label>
+			<input type="text" placeholder="Nome" v-model="novoUsuario.nome" id="nome" name="nome" style="text-transform:uppercase">
+		  </div>
+		  <div class="four wide field">
+			<label>Cargo</label>
+			<input type="text" placeholder="Descrição do cargo" v-model="novoUsuario.cargo" id="cargo" name="cargo" >
+		  </div>
+		  <div class="six wide field">
+			<label>Email</label>
+			<input type="text" placeholder="Email" v-model="novoUsuario.email" id="email" name="email">
+		  </div>
+		</div>
+
+		<div class="fields">
+			<div class="six wide field">
+				<label>Telefone</label>
+				<input type="text" placeholder="Telefone" v-model="novoUsuario.telefone" id="telefone" name="telefone" ></input>
+			</div>
+			<div class="four wide field">
+				<label>Senha</label>
+				<input type="password" placeholder="Senha" v-model="novoUsuario.senha" id="senha" name="senha" ></input>
+			</div>
+            
+			<div class="three wide field">
+                <label>Ativo</label>
+                <select v-model="novoUsuario.status" id="status" name="status" >
+                    <option value="1">SIM</option>
+                    <option value="0">NÃO</option>
+                </select>
+			</div>
+            
+			<div class="three wide field">
+                <label>Gerente</label>
+                <select v-model="novoUsuario.gerente" id="gerente" name="gerente" >
+                    <option value="1">SIM</option>
+                    <option value="0">NÃO</option>
+                </select>
+			</div>
+		</div>
+
+		<hr class="simple" />
+
+ 		{#<pre>
+			<% fazendas | json %>
+		</pre>#}
+		
+		<table class="ui celled striped table">
+		  <thead>
+		    <tr><th colspan="3">
+
+				  <div class="inline fields" style="margin-bottom: 0px;">
+
+				    <div class="six wide field">
+				      <label>Fazenda</label>
+				      <select class="ui dropdown" name="id_fazenda" id="id_fazenda">
+						
+						<option value="">SELECIONE UMA FAZENDA</option>
+				      	<option value="<%fazenda.id%>" v-for="fazenda in fazendas">
+				      		<%fazenda.nome%>
+				      	</option>
+
+				      </select>
+				    </div>
+
+				    <div class="five wide field">
+				    	<button class="ui green compact icon button" v-on:click="addFazenda($event)">
+						  <i class="plus icon"></i>
+						</button>
+				    </div>
+
+
+				  </div>
+
+		    </th>
+		  </tr></thead>
+		  <tbody id="">
+		
+			<tr colspan="2" v-for="fazenda in novoUsuario.FazendaEUsuario">
+			
+				<td class="center aligned" style="text-align: left;"><%fazenda.nome%><%fazenda.Fazenda.nome%></td>
+
+				<td class="right aligned">
+					<button class="mini ui green compact icon button" v-on:click="showSub($event)">
+						<i class="edit icon"></i>
+					</button>
+					<button class="mini ui red compact icon button" v-on:click="deleteSub($event)">
+						<i class="remove icon"></i>
+					</button>
+				</td>
+
+		  </tr>
+
+		  </tbody>
+		</table>
+
+	</form>
+
+	</div>
+	  <div class="actions">
+		<div class="ui black deny button" v-on:click="cancel($event)">
+		  Cancelar
+		</div>
+		<div class="ui positive right labeled icon button" v-on:click="create($event)">
+		  Salvar
+		  <i class="checkmark icon"></i>
+		</div>
+	  </div>
+</div>
